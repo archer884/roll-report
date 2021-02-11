@@ -1,72 +1,16 @@
 use std::{
     fs::OpenOptions,
     io::{self, BufReader},
-    num::ParseIntError,
-    str::FromStr,
 };
 
-use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
 use clap::Clap;
 use hashbrown::HashMap;
 use io::BufRead;
+use rollstat::{Entry, ParseEntryError};
 
 #[derive(Clap, Clone, Debug)]
 struct Opts {
     path: String,
-}
-
-struct Entry {
-    timestamp: DateTime<Utc>,
-    version: String,
-    max: i32,
-    values: Vec<i32>,
-}
-
-impl FromStr for Entry {
-    type Err = ParseEntryError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut segments = s.split('|');
-
-        let timestamp = Utc.from_utc_datetime(&NaiveDateTime::parse_from_str(
-            segments
-                .next()
-                .ok_or(ParseEntryError::Format("missing timestamp"))?,
-            "%F %R",
-        )?);
-        let version = segments
-            .next()
-            .ok_or(ParseEntryError::Format("missing version"))?
-            .to_owned();
-
-        let data = segments
-            .next()
-            .ok_or(ParseEntryError::Format("missing data segment"))?;
-        let (left, right) = match data.find(':') {
-            Some(idx) => (&data[..idx], &data[idx + 1..]),
-            None => return Err(ParseEntryError::Format("bad data segment")),
-        };
-
-        let max = left.parse()?;
-        let values: Result<Vec<_>, _> = right.split(',').map(|x| x.parse::<i32>()).collect();
-
-        Ok(Entry {
-            timestamp,
-            version,
-            max,
-            values: values?,
-        })
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-enum ParseEntryError {
-    #[error(transparent)]
-    ParseDate(#[from] chrono::ParseError),
-    #[error(transparent)]
-    ParseInt(#[from] ParseIntError),
-    #[error("malformed entry: {0}")]
-    Format(&'static str),
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -78,7 +22,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         map.entry(entry.max).or_default().extend(entry.values);
     }
 
-    for (max, values) in map {
+    let mut mapping: Vec<_> = map.into_iter().collect();
+    mapping.sort_unstable_by_key(|x| x.0);
+
+    for (max, values) in mapping {
         println!("{}: {:.03}", max, average(&values));
     }
 

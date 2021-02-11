@@ -194,9 +194,16 @@ dependencies = [
 name = "roll-report"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "clap",
  "hashbrown",
+ "rollstat",
+]
+
+[[package]]
+name = "rollstat"
+version = "0.1.0"
+dependencies = [
+ "chrono",
  "thiserror",
 ]
 
