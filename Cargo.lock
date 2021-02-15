@@ -183,9 +183,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.8"
+version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "991431c3519a3f36861882da93630ce66b52918dcf1b8e2fd66b397fc96f28df"
+checksum = "c3d0b9745dc2debf507c8422de05d7226cc1f0644216dfdfead988f9b1ab32a7"
 dependencies = [
  "proc-macro2",
 ]
@@ -202,6 +202,7 @@ dependencies = [
 [[package]]
 name = "rollstat"
 version = "0.1.0"
+source = "git+https://github.com/archer884/rollstat/#cc1f5185f954476c2355dcdf9d2592e285db7b1f"
 dependencies = [
  "chrono",
  "thiserror",

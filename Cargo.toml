@@ -7,4 +7,4 @@ version = "0.1.0"
 [dependencies]
 clap = { version = "3.0.0-beta.2" }
 hashbrown = "*"
-rollstat = { path = "../rollstat/" }
+rollstat = { git = "https://github.com/archer884/rollstat/" }
